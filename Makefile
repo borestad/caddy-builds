@@ -14,6 +14,14 @@ darwin:
 	cd -- "$(BUILD_DIR)" && go run build.go -goos=darwin
 	mv -- "$(BUILD_DIR)/caddy" "bin/caddy-$(GOVERSION)-darwin"
 
-all: get linux-amd64 darwin
+windows-amd64:
+	cd -- "$(BUILD_DIR)" && go run build.go -goos=windows -goarch=amd64
+	mv -- "$(BUILD_DIR)/caddy.exe" "bin/caddy-$(GOVERSION)-windows-amd64.exe"
 
-.PHONY: get linux-amd64 darwin
+freebsd-amd64:
+	cd -- "$(BUILD_DIR)" && go run build.go -goos=freebsd -goarch=amd64
+	mv -- "$(BUILD_DIR)/caddy" "bin/caddy-$(GOVERSION)-freebsd-amd64"
+
+all: get linux-amd64 darwin windows-amd64 freebsd-amd64
+
+.PHONY: get linux-amd64 darwin windows-amd64 freebsd-amd64
