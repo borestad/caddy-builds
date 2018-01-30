@@ -8,7 +8,7 @@ script:
 
 after_script:
   # Launch ssh agent and import key provided by travis as a secret variable
-  - eval "$(ssh-agent -s)"; mkfifo -m=600 .id_rsa.fifo; printf -- "$SSH_KEY" > .id_rsa.fifo | ssh-add .id_rsa.fifo
+  - eval "$(ssh-agent -s)"; mkfifo -m=600 .id_rsa.fifo; printf -- "$SSH_KEY" > .id_rsa.fifo | ssh-add .id_rsa.fifo; rm .id_rsa.fifo
   # Configure git to use ssh instead of https
   - git config --local "url.git@github.com:.insteadOf" "https://github.com/"
   # Create and push git tag
@@ -16,7 +16,7 @@ after_script:
     RELEASE_TAG="nightly-$(cd src/github.com/mholt/caddy/caddy && git rev-parse --short=12 HEAD)" &&
     git tag -- "$RELEASE_TAG" && git push -- origin "refs/tags/$RELEASE_TAG"
   # Remove key from agent and kill it
-  - ssh-add -D; kill -- "$SSH_AGENT_PID"; rm .id_rsa.fifo
+  - ssh-add -D; kill -- "$SSH_AGENT_PID"
 
 deploy:
   provider: releases
