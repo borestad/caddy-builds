@@ -5,23 +5,16 @@ go:
 
 script:
   - make all
-
-after_script:
-  # Launch ssh agent and import key provided by travis as a secret variable
-  - eval "$(ssh-agent -s)"; mkfifo -m=600 .id_rsa.fifo; printf -- "$SSH_KEY" > .id_rsa.fifo | ssh-add .id_rsa.fifo; rm .id_rsa.fifo
-  # Configure git to use ssh instead of https
-  - git config --local "url.git@github.com:.insteadOf" "https://github.com/"
-  # Create and push git tag
   - >
-    RELEASE_TAG="weekly-$(go version | awk '{print $3}')-$(cd src/github.com/mholt/caddy/caddy && git rev-parse --short=12 HEAD)" &&
-    git tag -- "$RELEASE_TAG" && git push -- origin "refs/tags/$RELEASE_TAG"
-  # Remove key from agent and kill it
-  - ssh-add -D; kill -- "$SSH_AGENT_PID"
+    if [ "$TRAVIS_BRANCH" = "master" ] || [ ! -z "$TRAVIS_TAG" ]; then
+      release_tag="weekly-$(go version | awk '{print $3}')-$(cd src/github.com/mholt/caddy/caddy && git rev-parse --short=12 HEAD)" &&
+      gem install octokit && lib/github_release.rb --secret "$GITHUB_TOKEN" --repo-slug fnkr/caddy-builds --changelog-file bin/caddy-release.md --tag "$release_tag" &&
+      rm bin/caddy-release.md
+    fi
 
 deploy:
   provider: releases
-  api_key:
-    secure: iQwN+UBZwWv0ShGuI+MDaTJOWfOcg6FdcZ56Sc2JUWAgigoArKr4CsE2cCOedJpdMffULJg9147U5EAUu7ochniMGDcAE5pEhpgBUMa1ysEnvIhSB88FND8FBp/pjnOqzKwx4yucdmaAMjGkNjlej/jOxi4Ehvd28N4TZdrzWQSvabHP6V/91q8CkXsNqlM6ETb+Div3tnTq+/i0x+lu1h0y9PQVSaEWtjo93qOABiueepcM8T45hDBvTCSRmOgxU1PLDOY69/UI22tJjL7mjZsRWVdm38gqhz679kL4EeQ7nwVyfrrQ/0cX4dMmJEmYIXpyzmOcF9qcPk7ZkcH5apl86WG/zWIH2/3V0KVKVWy2Ad6Jy6riDNLY6nZF/mWIBoyCag2faKic/QkqxW0FoGF1qg/npgsFdzaMQgT2iFfJ+qVZ9PNsgLszc+pScvOuFotCbaSuwnVN4DVBBqbYzXxPVkTh1JxinABlHSu9S4MeIT2XIaNQbYAVDhdAWOXQZq4i2n5uja78W9C8Jawyu3uN+iXlnza9OZVSkNtfNod/oyT/NlNAHW0nJsb+X2gEWnSwpGws/qg9zFSgbHPVl6uiu9rhFkH8L4LTFfhpWNw9UJx90tXdYWu8zP0tfs4gcxL+oYO44klD3CR2jjxXHRTVpy0DOXNXlP2CFpnNV/g=
+  api_key: "$GITHUB_TOKEN"
   file_glob: true
   file: bin/caddy-*
   skip_cleanup: true

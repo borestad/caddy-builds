@@ -22,8 +22,10 @@ freebsd-amd64:
 	mv -- "$(BUILD_DIR)/caddy" "bin/caddy-freebsd-amd64"
 
 releaseinfo:
-	go version > bin/caddy-release.txt
-	find src -name .git -exec bash -c 'printf -- "$$(dirname -- "{}") " && git --git-dir="{}" rev-parse HEAD' \; >> bin/caddy-release.txt
+	go version > bin/caddy-release.md
+	@printf -- '\n```\n' >> bin/caddy-release.md
+	find src -name .git -exec bash -c 'printf -- "$$(dirname -- "{}") " && git --git-dir="{}" rev-parse HEAD' \; >> bin/caddy-release.md
+	@printf -- '```\n' >> bin/caddy-release.md
 
 all: get linux-amd64 darwin windows-amd64 freebsd-amd64 releaseinfo
 
