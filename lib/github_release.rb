@@ -43,6 +43,6 @@ end
 # if tag has been pushed directly to git, create a github release
 if tag_matched == false
   client.create_release(options[:repo_slug], options[:tag_name], { :name => options[:tag_name], :body => body })
-else
-  client.update_release(release_url, { :name => options[:tag_name], :body => body })
+#else
+#  client.update_release(release_url, { :name => options[:tag_name], :body => body })
 end
