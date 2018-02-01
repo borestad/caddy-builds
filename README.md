@@ -1,3 +1,3 @@
 # [caddy-builds](https://github.com/fnkr/caddy-builds)
 
-Precompiled binaries for Caddy. Updated by Travis every week. Feel free to use.
+Precompiled binaries for Caddy. Updated automatically by Travis. Feel free to use.

@@ -10,6 +10,7 @@ OptionParser.new do |opt|
   opt.on('-r', '--repo-slug REPO_SLUG', 'Repo slug. i.e.: apple/swift') { |o| options[:repo_slug] = o }
   opt.on('-c', '--changelog-file CHANGELOG_FILE', 'Changelog path') { |o| options[:changelog_file] = o }
   opt.on('-t', '--tag TAG', 'Tag name') { |o| options[:tag_name] = o }
+  opt.on('-n', '--name NAME', 'Release name') { |o| options[:release_name] = o }
 end.parse!
 
 raise OptionParser::MissingArgument if options[:secret].nil?
@@ -42,7 +43,7 @@ end
 
 # if tag has been pushed directly to git, create a github release
 if tag_matched == false
-  client.create_release(options[:repo_slug], options[:tag_name], { :name => options[:tag_name], :body => body })
+  client.create_release(options[:repo_slug], options[:tag_name], { :name => options[:release_name], :body => body })
 #else
-#  client.update_release(release_url, { :name => options[:tag_name], :body => body })
+#  client.update_release(release_url, { :name => options[:release_name], :body => body })
 end

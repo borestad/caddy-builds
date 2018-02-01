@@ -4,11 +4,16 @@ go:
   - 1.x.x
 
 script:
-  - make all
+  - |
+    if [ -z "$TRAVIS_TAG" ]; then
+        make all
+    else
+        BUILD_TAG="$TRAVIS_TAG" make all
+    fi
   - >
     if [ "$TRAVIS_BRANCH" = "master" ] || [ ! -z "$TRAVIS_TAG" ]; then
-      release_tag="weekly-$(go version | awk '{print $3}')-$(cd src/github.com/mholt/caddy/caddy && git rev-parse --short=12 HEAD)" &&
-      gem install octokit && lib/github_release.rb --secret "$GITHUB_TOKEN" --repo-slug fnkr/caddy-builds --changelog-file bin/caddy-release.md --tag "$release_tag" &&
+      release_tag="$(cd src/github.com/mholt/caddy/caddy && git describe --tags)" &&
+      gem install octokit && lib/github_release.rb --secret "$GITHUB_TOKEN" --repo-slug fnkr/caddy-builds --changelog-file bin/caddy-release.md --tag "$release_tag" --name "${release_tag#v}" &&
       rm bin/caddy-release.md
     fi
 
