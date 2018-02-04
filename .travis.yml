@@ -6,22 +6,22 @@ go:
 script:
   - |
     if [ -z "$TRAVIS_TAG" ]; then
-        make all
+        make tag
     else
-        BUILD_TAG="$TRAVIS_TAG" make all
+        RELEASE_TAG="$TRAVIS_TAG" make tag
     fi
   - >
     if [ "$TRAVIS_BRANCH" = "master" ] || [ ! -z "$TRAVIS_TAG" ]; then
       release_tag="$(cd src/github.com/mholt/caddy/caddy && git describe --tags)" &&
-      gem install octokit && lib/github_release.rb --secret "$GITHUB_TOKEN" --repo-slug fnkr/caddy-builds --changelog-file bin/caddy-release.md --tag "$release_tag" --name "${release_tag#v}" &&
-      rm bin/caddy-release.md
+      gem install octokit && lib/github_release.rb --secret "$GITHUB_TOKEN" --repo-slug fnkr/caddy-builds --changelog-file "bin/caddy_${release_tag}_release.md" --tag "$release_tag" --name "${release_tag#v}" &&
+      rm "bin/caddy_${release_tag}_release.md"
     fi
 
 deploy:
   provider: releases
   api_key: "$GITHUB_TOKEN"
   file_glob: true
-  file: bin/caddy-*
+  file: "bin/caddy_${TRAVIS_TAG}_*"
   skip_cleanup: true
   on:
     tags: true
